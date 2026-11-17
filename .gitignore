@@ -1,0 +1,13 @@
+build/
+dist/
+coverage.out
+*.test
+*.exe
+*.bin
+*.pdf
+*.zip
+*.tar
+*.gz
+.idea/
+.vscode/
+.DS_Store
