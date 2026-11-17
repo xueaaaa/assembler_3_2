@@ -1,0 +1,6 @@
+[
+  {"op": "LOAD", "value": 38},
+  {"op": "READ", "address": 309},
+  {"op": "WRITE"},
+  {"op": "POW", "operand_offset": 180, "result_offset": 1}
+]
