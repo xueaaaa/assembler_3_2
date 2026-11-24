@@ -1,0 +1,20 @@
+[
+  {"op": "LOAD", "value": 64},
+  {"op": "LOAD", "value": 11},
+  {"op": "WRITE"},
+  {"op": "LOAD", "value": 65},
+  {"op": "LOAD", "value": 22},
+  {"op": "WRITE"},
+  {"op": "LOAD", "value": 66},
+  {"op": "LOAD", "value": 33},
+  {"op": "WRITE"},
+  {"op": "LOAD", "value": 80},
+  {"op": "READ", "address": 64},
+  {"op": "WRITE"},
+  {"op": "LOAD", "value": 81},
+  {"op": "READ", "address": 65},
+  {"op": "WRITE"},
+  {"op": "LOAD", "value": 82},
+  {"op": "READ", "address": 66},
+  {"op": "WRITE"}
+]
