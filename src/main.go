@@ -1,4 +1,4 @@
-// Command assembler переводит JSON-программу УВМ в промежуточные команды.
+// Command assembler переводит JSON-программу УВМ в машинный код.
 package main
 
 import (

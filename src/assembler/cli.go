@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"os"
 )
 
 const (
@@ -19,7 +18,7 @@ const (
 	testFlagName      = "test"
 )
 
-// options хранит параметры запуска; output зарезервирован для этапа 2.
+// options хранит исходный путь, выходной путь и тестовый режим.
 type options struct {
 	source string
 	output string
@@ -45,10 +44,10 @@ func parseArguments(arguments []string, stderr io.Writer) (options, error) {
 	parser := flag.NewFlagSet(cliName, flag.ContinueOnError)
 	parser.SetOutput(stderr)
 	var result options
-	parser.BoolVar(&result.test, testFlagName, false, "Вывести промежуточные поля команд УВМ")
+	parser.BoolVar(&result.test, testFlagName, false, "Вывести машинный код в байтовом формате")
 	parser.Usage = func() {
 		fmt.Fprintln(stderr, "Использование: assembler [--test] source.json output.bin")
-		fmt.Fprintln(stderr, "Этап 1: двоичный файл не создается; путь принят для этапа 2.")
+		fmt.Fprintln(stderr, "Этап 2: записать машинный код и вывести размер файла в байтах.")
 		parser.PrintDefaults()
 	}
 	if err := parser.Parse(normalizeArguments(arguments)); err != nil {
@@ -63,7 +62,7 @@ func parseArguments(arguments []string, stderr io.Writer) (options, error) {
 	return result, nil
 }
 
-// Run запускает первый этап ассемблера и возвращает код завершения CLI.
+// Run запускает ассемблер и возвращает код завершения CLI.
 func Run(arguments []string, stdout, stderr io.Writer) int {
 	argumentsOptions, err := parseArguments(arguments, stderr)
 	if errors.Is(err, flag.ErrHelp) {
@@ -73,31 +72,14 @@ func Run(arguments []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "Ошибка:", err)
 		return exitArgumentError
 	}
-	data, err := os.ReadFile(argumentsOptions.source)
+	commands, err := assembleFile(argumentsOptions)
 	if err != nil {
 		fmt.Fprintln(stderr, "Ошибка:", err)
 		return exitFailure
 	}
-	instructions, err := Translate(data)
-	if err != nil {
-		fmt.Fprintln(stderr, "Ошибка:", err)
+	if err := writeResult(stdout, commands, argumentsOptions.test); err != nil {
+		fmt.Fprintln(stderr, "Ошибка вывода:", err)
 		return exitFailure
-	}
-	if argumentsOptions.test {
-		if err := writeInstructions(stdout, instructions); err != nil {
-			fmt.Fprintln(stderr, "Ошибка вывода:", err)
-			return exitFailure
-		}
 	}
 	return exitSuccess
-}
-
-// writeInstructions выводит поля команд, проверяя ошибки записи.
-func writeInstructions(stdout io.Writer, instructions []Instruction) error {
-	for _, instruction := range instructions {
-		if _, err := fmt.Fprintln(stdout, instruction); err != nil {
-			return err
-		}
-	}
-	return nil
 }

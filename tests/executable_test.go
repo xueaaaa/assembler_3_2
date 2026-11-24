@@ -42,7 +42,8 @@ func TestExecutable(t *testing.T) {
 	if err != nil || stderr.Len() != emptyOutputLength {
 		t.Fatalf("ошибка запуска: %v, %s", err, stderr.String())
 	}
-	if expected := readFixture(t, expectedFilename); !bytes.Equal(actual, expected) {
+	if expected := []byte(expectedCLIOutput(t)); !bytes.Equal(actual, expected) {
 		t.Fatalf("получено %q, ожидалось %q", actual, expected)
 	}
+	assertMachineCode(t, output)
 }

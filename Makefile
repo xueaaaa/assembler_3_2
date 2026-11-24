@@ -9,10 +9,12 @@ build:
 	$(GO) build -o build/assembler ./src
 
 run:
-	$(GO) run ./src $(SOURCE) $(OUTPUT)
+	mkdir -p build
+	$(GO) run ./src "$(SOURCE)" "$(OUTPUT)"
 
 demo:
-	$(GO) run ./src --test $(SOURCE) $(OUTPUT)
+	mkdir -p build
+	$(GO) run ./src --test "$(SOURCE)" "$(OUTPUT)"
 
 test:
 	$(GO) test ./... -v

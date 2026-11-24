@@ -20,29 +20,24 @@ func TestCLITestMode(t *testing.T) {
 		if result.status != successStatus || result.stderr != "" {
 			t.Fatalf("ошибка запуска: %+v", result)
 		}
-		if expected := string(readFixture(t, expectedFilename)); result.stdout != expected {
+		if expected := expectedCLIOutput(t); result.stdout != expected {
 			t.Fatalf("получено %q, ожидалось %q", result.stdout, expected)
 		}
-	}
-	if _, err := os.Stat(output); !os.IsNotExist(err) {
-		t.Fatalf("выходной файл не должен создаваться: %v", err)
+		assertMachineCode(t, output)
 	}
 }
 
-// TestCLINormalMode проверяет отсутствие вывода и сохранность результата.
+// TestCLINormalMode проверяет вывод размера и замену существующего результата.
 func TestCLINormalMode(t *testing.T) {
 	const sentinel = "existing result"
 	source := filepath.Join(exampleDirectory, programFilename)
 	output := filepath.Join(t.TempDir(), outputFilename)
 	writeFixture(t, output, []byte(sentinel))
 	result := runCLI(source, output)
-	if result.status != successStatus || result.stdout != "" || result.stderr != "" {
+	if result.status != successStatus || result.stdout != expectedSizeLine || result.stderr != "" {
 		t.Fatalf("неверный результат: %+v", result)
 	}
-	content, err := os.ReadFile(output)
-	if err != nil || string(content) != sentinel {
-		t.Fatalf("существующий результат изменен: %q, %v", content, err)
-	}
+	assertMachineCode(t, output)
 }
 
 // TestCLIMissingSource проверяет обработку отсутствующего исходного файла.
@@ -54,7 +49,7 @@ func TestCLIMissingSource(t *testing.T) {
 	}
 }
 
-// TestCLIInvalidPrograms проверяет ошибки до вывода полей и записи файлов.
+// TestCLIInvalidPrograms проверяет ошибки до вывода и изменения результата.
 func TestCLIInvalidPrograms(t *testing.T) {
 	const sentinel = "existing result"
 	directory := t.TempDir()
